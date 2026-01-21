@@ -125,6 +125,59 @@
             <MenuItemList />
           </div>
         </div>
+        <!-- Public Menu & QR -->
+<div class="mb-8">
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      
+      <!-- Left -->
+      <div>
+        <h3 class="text-lg font-bold text-gray-800 mb-2">
+          Public Menu Access
+        </h3>
+        <p class="text-sm text-gray-500 mb-4">
+          Share this link or QR code with customers
+        </p>
+
+        <div class="flex items-center gap-2">
+          <input
+            readonly
+            :value="publicMenuUrl"
+            class="w-full md:w-96 border rounded-lg px-3 py-2 text-sm bg-gray-50"
+          />
+
+          <button
+            @click="copyLink"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            Copy
+          </button>
+
+          <a
+            :href="publicMenuUrl"
+            target="_blank"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold"
+          >
+            Open
+          </a>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="flex justify-center">
+        <div class="bg-gray-50 p-4 rounded-xl shadow-inner">
+          <QrcodeVue
+            :value="publicMenuUrl"
+            :size="140"
+            level="H"
+          />
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
       </div>
 
       <!-- Quick Actions -->
@@ -171,6 +224,8 @@
         </div>
       </div>
     </div>
+
+    
   </div>
 </template>
 
@@ -178,6 +233,8 @@
 import Navbar from '../components/Navbar.vue';
 import CategoryList from '../components/CategoryList.vue';
 import MenuItemList from '../components/MenuItemList.vue';
+import QrcodeVue from 'qrcode.vue';
+
 import api from '../axios';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
@@ -222,4 +279,25 @@ const logout = async () => {
     router.push('/');
   }
 };
+const publicMenuUrl = ref('');
+const user = ref(null);
+
+const loadUser = async () => {
+  const res = await api.get('/user'); // Sanctum authenticated
+  user.value = res.data;
+
+  publicMenuUrl.value = `${window.location.origin}/menu/${user.value.slug}`;
+};
+
+const copyLink = async () => {
+  await navigator.clipboard.writeText(publicMenuUrl.value);
+  alert('Public menu link copied!');
+};
+
+onMounted(() => {
+  updateTime();
+  loadUser();
+  timeInterval = setInterval(updateTime, 60000);
+});
+
 </script>
