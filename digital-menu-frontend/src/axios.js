@@ -1,8 +1,14 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',
- // withCredentials: true,
+  baseURL: "http://127.0.0.1:8000/api",
 });
+
+/* ✅ RESTORE TOKEN ON PAGE REFRESH */
+const token = localStorage.getItem("token");
+
+if (token) {
+  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
 
 export default api;
