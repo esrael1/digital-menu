@@ -10,7 +10,7 @@
             </svg>
           </div>
           <div class="flex flex-col">
-            <span class="text-xl font-bold text-white">Digital Menu Pro</span>
+            <span class="text-xl font-bold text-white">{{ businessName }}</span>
             <span class="text-xs text-blue-100 opacity-90">Restaurant Management System</span>
           </div>
         </div>
@@ -39,7 +39,20 @@
             <span>Menu Editor</span>
           </router-link>
           
-          <router-link 
+          <!-- Add Public Menu Link (opens in new tab) -->
+          <a 
+            v-if="publicMenuUrl"
+            :href="publicMenuUrl"
+            target="_blank"
+            class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            <span>Public Menu</span>
+          </a>
+          
+          <!-- <router-link 
             to="/analytics" 
             class="text-blue-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
             :class="{ 'bg-white/10': $route.path === '/analytics' }"
@@ -48,7 +61,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
             <span>Analytics</span>
-          </router-link>
+          </router-link> -->
           
           <router-link 
             to="/settings" 
@@ -74,7 +87,7 @@
             </div>
             <div class="text-sm">
               <p class="font-medium text-white">{{ userEmail }}</p>
-              <p class="text-xs text-blue-100 opacity-90">Administrator</p>
+              <p class="text-xs text-blue-100 opacity-90">{{ userRole }}</p>
             </div>
           </div>
 
@@ -130,7 +143,21 @@
           <span>Menu Editor</span>
         </router-link>
         
-        <router-link 
+        <!-- Public Menu Link for Mobile -->
+        <a 
+          v-if="publicMenuUrl"
+          :href="publicMenuUrl"
+          target="_blank"
+          class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors flex items-center space-x-3"
+          @click="isMobileMenuOpen = false"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+          <span>Public Menu</span>
+        </a>
+        
+        <!-- <router-link 
           to="/analytics" 
           class="text-blue-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors flex items-center space-x-3"
           :class="{ 'bg-white/10': $route.path === '/analytics' }"
@@ -140,7 +167,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
           <span>Analytics</span>
-        </router-link>
+        </router-link> -->
         
         <router-link 
           to="/settings" 
@@ -164,7 +191,7 @@
             </div>
             <div class="text-sm">
               <p class="font-medium text-white">{{ userEmail }}</p>
-              <p class="text-xs text-blue-100 opacity-90">Administrator</p>
+              <p class="text-xs text-blue-100 opacity-90">{{ userRole }}</p>
             </div>
           </div>
         </div>
@@ -174,24 +201,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed } from 'vue';
+
+const props = defineProps({
+  user: {
+    type: Object,
+    default: () => ({})
+  }
+});
 
 const emit = defineEmits(['logout']);
 const isMobileMenuOpen = ref(false);
-const userEmail = ref('admin@example.com');
 
-// In a real app, you would get this from your auth store or API
-onMounted(() => {
-  // Try to get user email from localStorage or auth state
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    try {
-      const user = JSON.parse(storedUser);
-      userEmail.value = user.email || 'admin@example.com';
-    } catch (e) {
-      console.error('Error parsing user data:', e);
-    }
+// Compute values from user prop or use defaults
+const userEmail = computed(() => {
+  return props.user?.email || 'admin@example.com';
+});
+
+const businessName = computed(() => {
+  return props.user?.business_name || 'Digital Menu Pro';
+});
+
+const userRole = computed(() => {
+  return props.user?.role || 'Administrator';
+});
+
+const publicMenuUrl = computed(() => {
+  if (props.user?.slug) {
+    return `${window.location.origin}/menu/${props.user.slug}`;
   }
+  return null;
 });
 
 const handleLogout = () => {

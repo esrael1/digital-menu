@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
     <!-- Header -->
     <header class="bg-gradient-to-r from-blue-600 to-green-500 shadow-lg">
-      <div class="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div class="max-w-full mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
           <div class="flex items-center space-x-3">
             <div class="bg-white/20 p-2 rounded-lg">
@@ -32,7 +32,7 @@
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <main class="max-w-full mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <!-- Loading State -->
       <div v-if="loading" class="space-y-8">
         <div class="text-center py-12">
@@ -187,10 +187,10 @@
                         <span>Available</span>
                       </div>
                       <div v-else class="inline-flex items-center space-x-1 text-sm text-red-600 bg-red-50 px-3 py-1 rounded-full">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <!-- <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
-                        <span>Out of Stock</span>
+                        <span>Out of Stock</span> -->
                       </div>
                     </div>
                   </div>
@@ -231,7 +231,7 @@
         <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           <div class="text-center md:text-left">
             <p class="text-white font-medium">{{ businessName }}</p>
-            <p class="text-blue-100 text-sm">Digital Menu • Powered by Digital Menu Pro</p>
+            <p class="text-blue-100 text-sm">Digital Menu • Powered by qelem technologys</p>
           </div>
           <div class="text-center md:text-right">
             <p class="text-white text-sm">© {{ currentYear }} All rights reserved</p>
