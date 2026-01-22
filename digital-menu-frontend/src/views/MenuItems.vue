@@ -2,79 +2,126 @@
 import { ref, onMounted, watch } from "vue";
 import axios from "../axios";
 
-/* State */
-const categories = ref([]);
+/* =========================
+   STATE
+========================= */
+const categories = ref([]);           // categories with menu_items
+const categoriesDropdown = ref([]);   // categories for select
 const search = ref("");
 
 const form = ref({
-  category_id: "",
+  category_id: null,
   item_name: "",
   price: "",
   tax_percentage: ""
 });
 
-/* Load items grouped by category */
+/* =========================
+   LOAD MENU ITEMS
+========================= */
 const loadItems = async () => {
-  const res = await axios.get("/menu-items", {
-    params: { search: search.value }
-  });
-  categories.value = res.data;
+  try {
+    const res = await axios.get("/menu-items", {
+      params: { search: search.value }
+    });
+    categories.value = res.data;
+  } catch (err) {
+    console.error("Failed to load items", err);
+  }
 };
 
-/* Load categories for dropdown */
+/* =========================
+   LOAD CATEGORIES
+========================= */
 const loadCategories = async () => {
-  const res = await axios.get("/categories");
-  categoriesDropdown.value = res.data;
+  try {
+    const res = await axios.get("/categories");
+    categoriesDropdown.value = res.data;
+  } catch (err) {
+    console.error("Failed to load categories", err);
+  }
 };
 
-/* Dropdown categories */
-const categoriesDropdown = ref([]);
-
-/* Add menu item */
+/* =========================
+   ADD MENU ITEM
+========================= */
 const addItem = async () => {
-  await axios.post("/menu-items", form.value);
+  if (!form.value.category_id) {
+    alert("Please select a category");
+    return;
+  }
 
-  form.value = {
-    category_id: "",
-    item_name: "",
-    price: "",
-    tax_percentage: ""
-  };
+  try {
+    await axios.post("/menu-items", {
+      category_id: form.value.category_id,
+      item_name: form.value.item_name,
+      price: Number(form.value.price),
+      tax_percentage: Number(form.value.tax_percentage || 0)
+    });
 
-  loadItems();
+    // reset form
+    form.value = {
+      category_id: null,
+      item_name: "",
+      price: "",
+      tax_percentage: ""
+    };
+
+    loadItems();
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Failed to add item");
+  }
 };
 
-/* Delete menu item */
+/* =========================
+   DELETE MENU ITEM
+========================= */
 const deleteItem = async (id) => {
-  if (!confirm("Delete this item?")) return;
-  await axios.delete(`/menu-items/${id}`);
-  loadItems();
+  if (!confirm("Delete this menu item?")) return;
+
+  try {
+    await axios.delete(`/menu-items/${id}`);
+    loadItems();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete item");
+  }
 };
 
-/* React to search */
-watch(search, loadItems);
-
-/* On load */
-onMounted(() => {
+/* =========================
+   WATCH SEARCH
+========================= */
+watch(search, () => {
   loadItems();
+});
+
+/* =========================
+   ON MOUNT
+========================= */
+onMounted(() => {
   loadCategories();
+  loadItems();
 });
 </script>
 
 <template>
   <div class="max-w-6xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-6">Menu Management</h1>
+    <h1 class="text-2xl font-bold mb-6">Menu Items Management</h1>
 
-    <!-- Add Item Form -->
+    <!-- ADD ITEM FORM -->
     <div class="grid grid-cols-5 gap-3 mb-6">
-      <select v-model="form.category_id" class="border p-2 rounded">
-        <option value="">Select Category</option>
+      <select
+        v-model.number="form.category_id"
+        class="border p-2 rounded"
+      >
+        <option disabled value="">Select Category</option>
         <option
-          v-for="c in categoriesDropdown"
-          :key="c.id"
-          :value="c.id"
+          v-for="cat in categoriesDropdown"
+          :key="cat.id"
+          :value="cat.id"
         >
-          {{ c.name }}
+          {{ cat.name }}
         </option>
       </select>
 
@@ -100,42 +147,37 @@ onMounted(() => {
 
       <button
         @click="addItem"
-        class="bg-green-600 text-white rounded px-4"
+        class="bg-green-600 text-white px-4 rounded hover:bg-green-700"
       >
         Add
       </button>
     </div>
 
-    <!-- Search -->
+    <!-- SEARCH -->
     <input
       v-model="search"
       placeholder="Search items..."
       class="border p-2 rounded w-full mb-6"
     />
 
-    <!-- Items Grouped by Category -->
+    <!-- MENU ITEMS -->
     <div v-for="cat in categories" :key="cat.id" class="mb-8">
       <h2 class="text-xl font-semibold mb-3">
         {{ cat.name }}
       </h2>
 
-      <div
-        v-if="cat.menu_items.length"
-        class="space-y-2"
-      >
+      <div v-if="cat.menu_items.length" class="space-y-2">
         <div
           v-for="item in cat.menu_items"
           :key="item.id"
           class="flex justify-between items-center border p-3 rounded"
         >
           <div>
-            <p class="font-medium">
-              {{ item.item_name }}
-            </p>
+            <p class="font-medium">{{ item.item_name }}</p>
             <p class="text-sm text-gray-500">
-              Price: {{ item.price }} |
+              Price: {{ item.price }} ETB |
               Tax: {{ item.tax_percentage }}% |
-              Final: {{ item.final_price }}
+              Final: {{ item.final_price }} ETB
             </p>
           </div>
 
